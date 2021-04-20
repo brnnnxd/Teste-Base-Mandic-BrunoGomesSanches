@@ -1,0 +1,70 @@
+---
+
+- name: "Playing with Ansible and Git"
+  hosts: 127.0.0.1
+  connection: local 
+  become: yes
+  become_method: sudo
+
+  tasks:
+
+  - name: install epel-release
+    yum:
+      name: epel-release
+      state: present
+
+  - name: Update all packages
+    yum:
+      name: '*'
+      state: latest
+      update_cache: yes
+
+  - name: install the latest version of nginx
+    yum:
+      name: nginx
+      state: latest
+
+  - name: Install pre-requisite packages
+    yum:
+     name: "{{item}}"
+     state: latest
+    loop:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+
+  - name: Add Docker CE repo
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docker-ce.repo
+
+  - name: Start and enable the Docker daemon
+    ansible.builtin.service:
+      name: docker 
+      state: started 
+      enabled: yes
+
+  - name: install the latest version of docker
+    yum:
+      name: 
+        - docker
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+      state: latest
+
+  - name: Allow connections port 80
+    ansible.builtin.iptables:
+      chain: INPUT
+      protocol: tcp
+      destination_port: '80'
+      ctstate: NEW
+      jump: ACCEPT
+      comment: Accept connections.
+
+  - name: Put SELinux in permissive mode, logging actions that would be blocked.
+    selinux:
+      policy: targeted
+      state: disabled
+    warn: false  
+      
