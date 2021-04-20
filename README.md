@@ -8,7 +8,8 @@ O playbook.yml para fazer as seguintes ações:
 + Instalar o docker e docker-compose
 
 - Docker-compose
-O docker-compose.yaml para fazer as seguintes ações:
+
+  O docker-compose.yaml para fazer as seguintes ações:
 
 Subir os containers :
 + nginx
