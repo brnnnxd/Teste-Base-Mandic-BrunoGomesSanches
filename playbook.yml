@@ -25,10 +25,10 @@
       state: latest
       update_cache: yes
 
-  - name: install the latest version of nginx
+  - name: remove nginx
     yum:
       name: nginx
-      state: present
+      state: absent
 
   - name: Install pre-requisite packages
     yum:
@@ -49,12 +49,6 @@
     ansible.builtin.service:
       name: docker
       state: started
-      enabled: yes
-
-  - name: Start and enable the nginx daemon
-    ansible.builtin.service:
-      name: nginx 
-      state: started 
       enabled: yes
 
   - name: Allow connections port 80
