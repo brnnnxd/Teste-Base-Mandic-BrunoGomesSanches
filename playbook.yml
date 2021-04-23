@@ -1,7 +1,7 @@
 ---
 
-- name: "Playing with Ansible and Git"
-  hosts: 127.0.0.1
+- name: "Ansible task"
+  hosts: localhost
   connection: local 
   become: yes
   become_method: sudo
@@ -11,7 +11,13 @@
   - name: install epel-release
     yum:
       name: epel-release
-      state: present
+      state: present   
+
+  - name: Add Docker CE repo
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docker-ce.repo
+      mode: 0644
 
   - name: Update all packages
     yum:
@@ -22,36 +28,34 @@
   - name: install the latest version of nginx
     yum:
       name: nginx
-      state: latest
+      state: present
 
   - name: Install pre-requisite packages
     yum:
      name: "{{item}}"
-     state: latest
+     state: present
     loop:
       - yum-utils
       - device-mapper-persistent-data
       - lvm2
 
-  - name: Add Docker CE repo
-    get_url:
-      url: https://download.docker.com/linux/centos/docker-ce.repo
-      dest: /etc/yum.repos.d/docker-ce.repo
-
-  - name: Start and enable the Docker daemon
-    ansible.builtin.service:
-      name: docker 
-      state: started 
-      enabled: yes
-
-  - name: install the latest version of docker
+  - name: install the docker
     yum:
       name: 
         - docker
-        - docker-ce
-        - docker-ce-cli
-        - containerd.io
-      state: latest
+      state: present
+     
+  - name: Start and enable the Docker daemon
+    ansible.builtin.service:
+      name: docker
+      state: started
+      enabled: yes
+
+  - name: Start and enable the nginx daemon
+    ansible.builtin.service:
+      name: nginx 
+      state: started 
+      enabled: yes
 
   - name: Allow connections port 80
     ansible.builtin.iptables:
@@ -62,9 +66,18 @@
       jump: ACCEPT
       comment: Accept connections.
 
-  - name: Put SELinux in permissive mode, logging actions that would be blocked.
+  - name: Put SELinux in permissive mode.
     selinux:
-      policy: targeted
       state: disabled
-    warn: false  
-      
+
+  - name: Download and install Docker Compose
+    get_url:
+      url: https://github.com/docker/compose/releases/download/1.21.2/docker-compose-Linux-x86_64
+      dest: /usr/local/bin/docker-compose
+      mode: 0755
+
+  - name: Create a symbolic link
+    ansible.builtin.file:
+      src: /usr/local/bin/docker-compose
+      dest: /usr/bin/docker-compose
+      state: link    
