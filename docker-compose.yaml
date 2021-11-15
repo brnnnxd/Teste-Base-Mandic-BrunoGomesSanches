@@ -3,13 +3,11 @@ version: "3.3"
 services:
 
   nginx:
-    image: brnnnxd/nginx:0.1.0 
+    image: "brnnnxd/nginx:${TAG}"
     ports:
       - 80:80    
     container_name: nginx
     restart: always      
-    # volumes:
-    #   - ./config/:/etc/nginx/conf.d/
 
   db:
     image: mysql:5.7
@@ -20,26 +18,26 @@ services:
       - db_data:/var/lib/mysql
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: my-secret-pw
-      MYSQL_DATABASE: wordpressdb
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: wordpresspw
+      MYSQL_ROOT_PASSWORD: ${ROOTPASS} 
+      MYSQL_DATABASE: ${wordpressdb}
+      MYSQL_USER: ${wordpress}
+      MYSQL_PASSWORD: ${wordpresspw}
 
   wordpress:
     depends_on:
       - db
-    image: brnnnxd/wordpress:0.0.1
+    image: "brnnnxd/wordpress:${TAG}"
     ports:
       - 8082:80
     container_name: wordpress
     restart: always
     environment:
-      MYSQL_DATABASE: wordpressdb
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: wordpresspw
+      MYSQL_DATABASE: ${wordpressdb}
+      MYSQL_USER: ${wordpress}
+      MYSQL_PASSWORD: ${wordpresspw}
 
   magento:
-    image: brnnnxd/magento:0.1.0
+    image: "brnnnxd/magento:${TAG}"
     ports:
       - 8083:80
     container_name: magento
@@ -47,13 +45,13 @@ services:
       - db
 
   tomcat:
-    image: brnnnxd/tomcat:0.0.1
+    image: "brnnnxd/tomcat:${TAG}"
     ports: 
       - 8080:8080
     container_name: tomcat
 
   site:
-    image: brnnnxd/site:0.0.1
+    image: "brnnnxd/site:${TAG}"
     ports:
       - 8081:80
     container_name: site
